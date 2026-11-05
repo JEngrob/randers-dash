@@ -14,15 +14,18 @@
 <link rel="icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
-  html,body{margin:0;height:100%;height:100dvh;background:#020814;overflow:hidden;touch-action:none;overscroll-behavior:none;
+  html,body{margin:0;height:100%;background:#020814;overflow:hidden;touch-action:none;overscroll-behavior:none;
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
-  /* hold spillet fri af notch og home-streg */
-  body{box-sizing:border-box;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  canvas{display:block;width:100%;height:100%}
+  /* lærredets størrelse og placering sættes af resize() ud fra det synlige område */
+  canvas{display:block;position:fixed;left:0;top:0;width:100vw;height:100vh}
+  /* måler notch og home-streg (safe area), så spillet kan holde sig fri af dem */
+  #safe{position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="safe"></div>
 <script>
 'use strict';
 // =====================================================================
@@ -595,9 +598,16 @@ function sfxWin() {
 function toggleMute() { muted = !muted; if (master) master.gain.value = muted ? 0 : 0.3; }
 
 // ---------- Skærm ----------
+// Spillet fylder det område, man faktisk kan se. På iPhone er CSS'ens 100% / 100vh højere end skærmen,
+// når Safaris værktøjslinje vises, så højden måles direkte (visualViewport), og notch/home-streg trækkes fra.
 function resize() {
   dpr = Math.min(window.devicePixelRatio || 1, 2);
-  W = cv.clientWidth || window.innerWidth; H = cv.clientHeight || window.innerHeight;
+  const vv = window.visualViewport, vw = vv ? vv.width : window.innerWidth, vh = vv ? vv.height : window.innerHeight;
+  const st = getComputedStyle(document.getElementById('safe')), px = k => parseFloat(st[k]) || 0;
+  const l = px('paddingLeft'), rgt = px('paddingRight'), t = px('paddingTop'), b = px('paddingBottom');
+  W = Math.max(200, Math.floor(vw - l - rgt)); H = Math.max(150, Math.floor(vh - t - b));
+  Object.assign(cv.style, { left: l + 'px', top: t + 'px', width: W + 'px', height: H + 'px' });
+  window.scrollTo(0, 0);
   cv.width = W * dpr; cv.height = H * dpr;
   cx.setTransform(dpr, 0, 0, dpr, 0, 0);
   s = Math.min(H / (T * VIS), W / (T * 14));
@@ -631,7 +641,8 @@ function buildCrowd() {
   while (x < w) { g.fillText(msg[k % msg.length], x, by + bh / 2 + 1); x += g.measureText(msg[k % msg.length]).width + 28; k++; }
 }
 window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+window.addEventListener('orientationchange', () => { setTimeout(resize, 200); setTimeout(resize, 600); });
+if (window.visualViewport) visualViewport.addEventListener('resize', resize);
 // skifter man væk fra appen (fx et opkald på iPhone), holder spillet pause
 document.addEventListener('visibilitychange', () => { if (document.hidden) { held = false; inq.length = 0; pause(); } });
 // offline: gem spillet på telefonen, når det hentes over https
@@ -2108,6 +2119,7 @@ function drawSelect() {
   y += 28;
   centerText(`★ ${t.stars}/${t.maxStars}     Hestesko ${t.coins}/${t.maxCoins}     Point ${fmt(t.points)}`, y, 15, 800, C.gold);
   const cw = Math.min(W - 110, 520), ch = 218, x0 = (W - cw) / 2, y0 = y + 16;
+  addButton(x0, y0, cw, ch, () => playLevel(false));   // tryk på banekortet starter banen (som i GD)
   roundRect(x0, y0, cw, ch, 18); cx.fillStyle = 'rgba(0,6,20,0.85)'; cx.fill();
   cx.save(); cx.shadowColor = lv.diffCol; cx.shadowBlur = 16; cx.strokeStyle = lv.diffCol; cx.lineWidth = 3; cx.stroke(); cx.restore();
   text(`BANE ${LV + 1} AF ${LEVELS.length}`, x0 + 22, y0 + 30, 13, 800, '#9ec9ff');
