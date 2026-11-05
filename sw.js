@@ -1,6 +1,6 @@
 // Gemmer spillet på telefonen, så det også kan spilles uden net.
 // Spillet hentes altid frisk, når der er net; ellers bruges den gemte udgave.
-const CACHE = 'randers-dash-v1';
+const CACHE = 'randers-dash-v2';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {

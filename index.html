@@ -14,7 +14,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
-  html,body{margin:0;height:100%;background:#020814;overflow:hidden;touch-action:none;overscroll-behavior:none;
+  html,body{margin:0;height:100%;height:100dvh;background:#020814;overflow:hidden;touch-action:none;overscroll-behavior:none;
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   /* hold spillet fri af notch og home-streg */
   body{box-sizing:border-box;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
@@ -2033,8 +2033,23 @@ function text(txt, x, y, size, weight = 800, col = C.white, align = 'left') {
   cx.textAlign = align; cx.fillStyle = col; cx.fillText(txt, x, y); cx.textAlign = 'left';
 }
 function centerText(txt, y, size, weight = 900, col = C.white) { text(txt, W / 2, y, size, weight, col, 'center'); }
+// Menuerne er tegnet til mindst 760×560; på en lille skærm (fx en iPhone på tværs) skaleres de ned,
+// så alt kan ses. Knappernes klikfelter følger med skaleringen.
+let uiS = 1;
+const TOUCH = navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches;
+const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const STANDALONE = navigator.standalone === true || matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches;
+function withUI(fn) {
+  const u = Math.min(1, H / 560, W / 760);
+  if (u >= 1) { fn(); return; }
+  const w0 = W, h0 = H;
+  uiS = u; W = w0 / u; H = h0 / u;
+  cx.save(); cx.scale(u, u);
+  try { fn(); } finally { cx.restore(); W = w0; H = h0; uiS = 1; }
+}
+function addButton(x, y, w, h, fn) { buttons.push({ x: x * uiS, y: y * uiS, w: w * uiS, h: h * uiS, fn }); }
 function button(x, y, w, h, label, fn, col = C.sky, primary = false, size = 17) {
-  buttons.push({ x, y, w, h, fn });
+  addButton(x, y, w, h, fn);
   roundRect(x, y, w, h, 12);
   cx.fillStyle = primary ? col : 'rgba(0,0,0,0.55)'; cx.fill();
   cx.lineWidth = 2; cx.strokeStyle = primary ? C.white : col; cx.stroke();
@@ -2077,14 +2092,16 @@ function drawBanner() {
   centerText(banner.txt, H * 0.24, big, 900, banner.col);
   cx.restore();
 }
-function drawSelect() {
+// hesten (i den valgte stald-farve) galopperer på græsset bag menuen – tegnes i skærmens egen størrelse
+function drawSelectBack() {
   overlay(0.45);
-  const lv = LEVELS[LV], l = save.lv[LV], t = totals();
-  // hesten (i den valgte stald-farve) galopperer bag menuen
   cx.save(); cx.shadowColor = C.sky; cx.shadowBlur = 6;
   const z = T * s; cx.translate(Math.max(60, (W - Math.min(W - 110, 520)) / 2 - 70), Y(0) - z * 0.5); cx.scale(z / 40 * 1.05, z / 40 * 1.05);
   drawHorse(menuX * 0.05, false, false, 0, curSkin(), false);
   cx.restore();
+}
+function drawSelect() {
+  const lv = LEVELS[LV], l = save.lv[LV], t = totals();
   const big = Math.min(W / 11, 58);
   let y = 14 + big * 0.85;
   centerText('RANDERS DASH', y + 3, big, 900, C.blue); centerText('RANDERS DASH', y, big);
@@ -2130,7 +2147,11 @@ function drawSelect() {
   const hh = (gw - 12) / 2;
   button(gx, by + 130, hh, 34, noclip ? 'Noclip: TIL (N)' : 'Noclip: FRA (N)', toggleNoclip, '#ff4d6a', noclip, 14);
   button(gx + hh + 12, by + 130, hh, 34, showHit ? 'Hitbokse: TIL (H)' : 'Hitbokse: FRA (H)', toggleHitboxes, '#3fa9ff', showHit, 14);
-  centerText(`←/→ bane • Mellemrum: spil • O: øvelse • K: karakterer • N: noclip • H: hitbokse • M: lyd   |   Hop i alt: ${fmt(save.jumps)} • Forsøg i alt: ${fmt(save.att)}`,
+  if (IOS && !STANDALONE) {
+    roundRect(W / 2 - 250, H - 40, 500, 30, 15); cx.fillStyle = 'rgba(255,210,63,0.95)'; cx.fill();
+    centerText('Fuld skærm: tryk Del ⬆︎ i Safari → Føj til hjemmeskærm', H - 20, 14, 900, C.navy);
+  } else if (TOUCH) centerText(`Tryk på skærmen = hop   |   Hop i alt: ${fmt(save.jumps)} • Forsøg i alt: ${fmt(save.att)}`, H - 12, 11, 600, 'rgba(158,201,255,0.8)');
+  else centerText(`←/→ bane • Mellemrum: spil • O: øvelse • K: karakterer • N: noclip • H: hitbokse • M: lyd   |   Hop i alt: ${fmt(save.jumps)} • Forsøg i alt: ${fmt(save.att)}`,
     H - 12, 11, 600, 'rgba(158,201,255,0.8)');
 }
 // ---------- Karaktervælger ----------
@@ -2172,7 +2193,7 @@ function drawKit() {
     drawKitIcon(kitTab, i); cx.restore();
     text(it.name, x + cw / 2, y + chh - 28, 12, 800, ok ? C.white : '#7f93b8', 'center');
     text(ok ? (sel ? '✓ VALGT' : 'vælg') : '🔒 ' + needShort(it), x + cw / 2, y + chh - 10, 11, 800, ok ? (sel ? '#3fff78' : '#9ec9ff') : '#ff9f9f', 'center');
-    if (ok) buttons.push({ x, y, w: cw, h: chh, fn: () => kitPick(i) });
+    if (ok) addButton(x, y, cw, chh, () => kitPick(i));
   });
   centerText('Klik for at vælge  •  ←/→ skift  •  1/2/3 eller Tab: fane', H - 84, 12, 700, '#9ec9ff');
   button(W / 2 - 110, H - 66, 220, 46, '✓ Færdig (Esc)', () => { kitOpen = false; }, C.sky, true, 17);
@@ -2268,10 +2289,10 @@ function render() {
   if (flash > 0) { cx.fillStyle = `rgba(${flashCol},${flash * 1.2})`; cx.fillRect(0, 0, W, H); }
   // noclip: rødt blink hver gang hesten ville være død
   if (ncFlash > 0 && state === 'play') { cx.fillStyle = `rgba(255,30,50,${ncFlash * 1.4})`; cx.fillRect(0, 0, W, H); }
-  if (state === 'select') { if (kitOpen) drawKit(); else drawSelect(); }
+  if (state === 'select') { if (!kitOpen) drawSelectBack(); withUI(kitOpen ? drawKit : drawSelect); }
   else { drawHUD(); drawBanner(); }
-  if (state === 'win') drawWin();
-  if (state === 'pause') drawPause();
+  if (state === 'win') withUI(drawWin);
+  if (state === 'pause') withUI(drawPause);
   if (portrait()) drawRotateHint();
 }
 // spillet er lavet til at ligge ned; på en telefon på højkant beder vi om at dreje den
