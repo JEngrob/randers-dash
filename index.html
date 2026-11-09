@@ -75,7 +75,7 @@ const P = (x, y = 0, c = 'y') => L.push({ t: 'p', x: x * T, y: y * T, w: T, h: T
 const O = (x, y, c = 'y') => L.push({ t: 'o', x: x * T, y: y * T, w: T, h: T, c });          // orb
 const K = (x, y) => L.push({ t: 'c', x: x * T, y: y * T, w: T, h: T });                      // hestesko
 const V = (x, i, y = 0) => L.push({ t: 'v', x: x * T, y: y * T, w: T, h: 3 * T, m: SPEEDS[i], i });
-const Gv = (x, dir, y = 0) => L.push({ t: 'g', x: x * T, y: y * T, w: T, h: 3 * T, dir });
+const Gv = (x, dir, y = 0, h = 3) => L.push({ t: 'g', x: x * T, y: y * T, w: T, h: h * T, dir });
 const Z = (x, mini, y = 0) => L.push({ t: 'z', x: x * T, y: y * T, w: T, h: 3 * T, mini });
 // spiltilstands-portal: korridor fra fy til fy+fh (galop har ingen korridor; fy er så bare hvor portalen tegnes)
 const M = (x, mode, fy = 0, fh = 10) => L.push({ t: 'm', x: x * T, y: fy * T, w: T, h: (mode === 'cube' ? 3 : fh) * T, mode, fy: fy * T, fh: fh * T });
@@ -284,6 +284,7 @@ const LEVELS = [
       S(136, 0, 3); D(143, 7, 3); S(149, 0, 3); D(155, 7, 3); B(160, 0, 3, 3); D(165, 7, 2);
       // grøn: UFO over pigge
       Col(168, '#010a03', '#03180a', '#3fff6e');
+      Gv(168.5, 1, 0, 8);   // altid med benene nedad ind i UFO'en – dækker hele kugle-korridoren
       M(170, 'ufo', 0, 10); S(171, 0, 25);
       B(176, 0, 2, 4); B(182, 6, 2, 4); K(184.5, 3); B(188, 0, 2, 5); B(193, 7, 2, 3);
       // guld: galop til mål
