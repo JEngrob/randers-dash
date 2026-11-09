@@ -79,7 +79,7 @@ const Gv = (x, dir, y = 0) => L.push({ t: 'g', x: x * T, y: y * T, w: T, h: 3 * 
 const Z = (x, mini, y = 0) => L.push({ t: 'z', x: x * T, y: y * T, w: T, h: 3 * T, mini });
 // spiltilstands-portal: korridor fra fy til fy+fh (galop har ingen korridor; fy er så bare hvor portalen tegnes)
 const M = (x, mode, fy = 0, fh = 10) => L.push({ t: 'm', x: x * T, y: fy * T, w: T, h: (mode === 'cube' ? 3 : fh) * T, mode, fy: fy * T, fh: fh * T });
-const Col = (x, bg, gr) => COLS.push({ x: x * T, bg, gr });
+const Col = (x, bg, gr, neon) => COLS.push({ x: x * T, bg, gr, neon });   // neon: lysfarve på neon-banen
 const Dec = (x, y, r, k = 'ring') => DECO.push({ x: x * T, y: y * T, r: r * T, k });
 // Randers' vartegn
 const LB = (x, y, w, h, look) => L.push({ t: 'b', x: x * T, y: y * T, w: w * T, h: h * T, look });      // bygning man kan lande på
@@ -249,6 +249,45 @@ const LEVELS = [
       M(188, 'cube', 0); V(190, 3);
       S(198, 0, 3); S(207, 0, 2); S(213, 0, 4); O(214.5, 1.7);
       Dec(232, 0, 1, 'stadium');
+    }
+  },
+  {
+    // Neon-bane: sort nat, klodser med lysende kanter, og lysfarven skifter for hvert afsnit (blå → lilla → is → pink → grøn → guld)
+    name: 'Neonnat', diff: 'Hård', diffCol: '#ff5a36', stars: 9, startSpeed: 1, wild: 1, goal: 246, accent: '#3f7bff', neon: true,
+    music: { bpm: 150, roots: [45, 41, 43, 40], chords: [[57, 60, 64], [53, 57, 60], [55, 59, 62], [52, 55, 59]],
+      lead: [0, 2, 1, -1, 2, 1, 0, 2, -1, 1, 2, 0, 1, -1, 2, 1] },
+    signs: [
+      { x: 5, y: 3.4, txt: 'VELKOMMEN TIL NEONNAT' }, { x: 54, y: 11.5, txt: 'FLYV GENNEM LYSET' },
+      { x: 98, y: 11.5, txt: 'WAVE I ISBLÅT' }, { x: 132, y: 9.5, txt: 'PINK KUGLE' },
+      { x: 172, y: 11.5, txt: 'GRØN UFO' }, { x: 205, y: 5, txt: 'SIDSTE SPURT!' }],
+    build() {
+      // blå: trappe over piggene og en orb
+      Col(0, '#02030c', '#040a1f', '#3f7bff');
+      S(12); S(18, 0, 2);
+      B(24, 0, 3, 1); S(27, 0, 2); B(29, 0, 3, 2); S(32, 0, 2); B(34, 0, 3, 3); K(38, 4.4); S(37, 0, 4);
+      S(44, 0, 6); O(46, 1.6);
+      // lilla: flyvehest
+      Col(50, '#06020f', '#10051f', '#b84dff');
+      M(52, 'ship', 0, 10);
+      B(58, 0, 2, 4); B(64, 6, 2, 4); Saw(70, 5, 1.2); B(76, 0, 2, 3); B(76, 7, 2, 3);
+      B(82, 0, 2, 5); K(85.5, 6.4); B(88, 5, 2, 5);
+      // isblå: wave
+      Col(94, '#01060f', '#031424', '#3fd0ff');
+      M(96, 'wave', 0, 10);
+      B(102, 0, 2, 5); B(109, 5, 2, 5); B(116, 0, 2, 4); B(116, 8, 2, 2); B(123, 6, 2, 4);
+      // pink: kugle
+      Col(128, '#0c020a', '#1f0518', '#ff3dc8');
+      M(130, 'ball', 0, 8);
+      S(136, 0, 3); D(143, 7, 3); S(149, 0, 3); D(155, 7, 3); B(160, 0, 3, 3); D(165, 7, 2);
+      // grøn: UFO over pigge
+      Col(168, '#010a03', '#03180a', '#3fff6e');
+      M(170, 'ufo', 0, 10); S(171, 0, 25);
+      B(176, 0, 2, 4); B(182, 6, 2, 4); K(184.5, 3); B(188, 0, 2, 5); B(193, 7, 2, 3);
+      // guld: galop til mål
+      Col(196, '#0d0702', '#1f1205', '#ffb02e');
+      M(198, 'cube', 0); Gv(198, 1); V(199, 2);
+      S(207, 0, 3); B(212, 0, 4, 1); B(218, 1, 4, 1); B(224, 2, 4, 1); S(216, 0, 16);
+      S(236, 0, 3);
     }
   }
 ];
@@ -817,7 +856,9 @@ function colorsAt(x) {
   let i = 0; while (i + 1 < COLS.length && COLS[i + 1].x <= x) i++;
   const cur = COLS[i], prev = COLS[Math.max(0, i - 1)];
   const t = clamp((x - cur.x) / (0.6 * BASE), 0, 1);
-  return { bg: mixHex(prev.bg, cur.bg, i === 0 ? 1 : t), gr: mixHex(prev.gr, cur.gr, i === 0 ? 1 : t), bgHex: cur.bg };
+  const tt = i === 0 ? 1 : t, nA = prev.neon && hexRgb(prev.neon), nB = cur.neon && hexRgb(cur.neon);
+  const neon = nB ? (nA ? nA.map((v, k) => Math.round(v + (nB[k] - v) * tt)) : nB) : null;
+  return { bg: mixHex(prev.bg, cur.bg, tt), gr: mixHex(prev.gr, cur.gr, tt), bgHex: cur.bg, neon };
 }
 
 // ---------- Opdatering ----------
@@ -943,6 +984,11 @@ const X = x => (x - camX) * s;
 const Y = y => H - (y - camY) * s;
 const mod = (a, m) => ((a % m) + m) % m;
 const fmt = n => Math.round(n).toLocaleString('da-DK');
+// Neon-banen: NEON er afsnittets lysfarve [r,g,b] (skifter blødt), accent() er kantfarven på alle baner
+let NEON = null;
+const isNeon = () => !!LEVELS[LV].neon;
+const na = a => NEON ? `rgba(${NEON[0]},${NEON[1]},${NEON[2]},${a})` : `rgba(63,123,255,${a})`;
+const accent = () => isNeon() && NEON ? na(1) : LEVELS[LV].accent;
 
 function pulse() {
   if (!AC || !musicOn || !kicks.length) return 0;
@@ -1277,9 +1323,110 @@ function drawGoalBall(x0, yb, z) {
   const t = Math.min(winT, 2), bx = x0 + z * (0.4 + Math.min(t, 0.5) * 3.4), by = yb - z * 0.35 - Math.abs(Math.sin(t * 7)) * z * Math.max(0, 1.2 - t * 0.6);
   drawBall(bx, by, z * 0.32, t * 12);
 }
+// ---------- Bane 5: Neonnat ----------
+// Sort nat med farvede lysskyer, lyskegler, store lysende figurer (tandhjul, stjerner, chevrons, ruder, ringe)
+// i to lag med parallakse og svævende lyspixels. Alt tegnes i afsnittets neonfarve.
+function neonGlyph(k, x, y, r, rot, a) {
+  cx.save(); cx.translate(x, y); cx.rotate(rot); cx.beginPath();
+  if (k === 0) {            // tandhjul
+    for (let i = 0; i < 40; i++) { const an = i * Math.PI / 20, rr = (i >> 1) % 2 ? r * 0.8 : r; cx[i ? 'lineTo' : 'moveTo'](Math.cos(an) * rr, Math.sin(an) * rr); }
+    cx.closePath(); cx.moveTo(r * 0.42, 0); cx.arc(0, 0, r * 0.42, 0, Math.PI * 2);
+  } else if (k === 1) {     // 8-takket stjerne
+    for (let i = 0; i < 16; i++) { const an = i * Math.PI / 8, rr = i % 2 ? r * 0.45 : r; cx[i ? 'lineTo' : 'moveTo'](Math.cos(an) * rr, Math.sin(an) * rr); }
+    cx.closePath(); cx.moveTo(r * 0.22, 0); cx.arc(0, 0, r * 0.22, 0, Math.PI * 2);
+  } else if (k === 2) {     // chevrons
+    cx.rotate(-rot);
+    for (const dy of [-0.55, 0, 0.55]) { cx.moveTo(-r * 0.7, (dy - 0.35) * r); cx.lineTo(0, (dy + 0.1) * r); cx.lineTo(r * 0.7, (dy - 0.35) * r); }
+  } else if (k === 3) {     // ruder i ruder
+    for (const f of [1, 0.62, 0.28]) { cx.moveTo(0, -r * f); cx.lineTo(r * f, 0); cx.lineTo(0, r * f); cx.lineTo(-r * f, 0); cx.closePath(); }
+  } else {                  // ring i stykker
+    for (let i = 0; i < 6; i++) { const a0 = i * Math.PI / 3 + 0.12; cx.moveTo(Math.cos(a0) * r, Math.sin(a0) * r); cx.arc(0, 0, r, a0, a0 + Math.PI / 3 - 0.24); }
+    cx.moveTo(r * 0.6, 0); cx.arc(0, 0, r * 0.6, 0, Math.PI * 2);
+  }
+  cx.lineJoin = 'round';
+  cx.strokeStyle = na(a * 0.35); cx.lineWidth = Math.max(5, r * 0.12); cx.stroke();
+  cx.strokeStyle = na(a); cx.lineWidth = 2; cx.stroke();
+  cx.restore();
+}
+function neonLayer(par, cell, a, pl) {
+  const ox = camX * s * par, oy = -camY * s * par * 0.5;
+  for (let c = Math.floor((ox - cell) / cell); c * cell - ox < W + cell; c++)
+    for (let r = Math.floor((oy - cell) / cell); r * cell - oy < H + cell; r++) {
+      const h = (Math.imul(c, 73856093) ^ Math.imul(r, 19349663) ^ cell) >>> 0;
+      if (h % 5 > 2) continue;
+      const x = c * cell - ox + cell * (0.3 + (h >> 4) % 40 / 100), y = r * cell - oy + cell * (0.3 + (h >> 9) % 40 / 100);
+      const R = cell * (0.22 + (h >> 13) % 4 * 0.05) * (1 + pl * 0.06);
+      neonGlyph((h >> 2) % 5, x, y, R, time * 0.25 * ((h & 64) ? 1 : -1) + h % 7, a * (1 + pl * 0.5));
+    }
+}
+function drawNeonBackground(col, pl) {
+  cx.fillStyle = col.bg; cx.fillRect(0, 0, W, H);
+  const big = Math.max(W, H);
+  // farvede lysskyer
+  for (let i = 0; i < 3; i++) {
+    const span = W + 800, bx = mod(W * (0.15 + i * 0.4) - camX * s * (0.04 + i * 0.03), span) - 400;
+    const by = H * (0.35 + 0.25 * Math.sin(time * 0.4 + i * 2.1)), r = big * (0.45 + 0.1 * i);
+    const g = cx.createRadialGradient(bx, by, 0, bx, by, r);
+    g.addColorStop(0, na(0.2 + pl * 0.08)); g.addColorStop(1, na(0));
+    cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+  }
+  // lyskegler oppefra
+  cx.save(); cx.globalCompositeOperation = 'lighter';
+  for (let k = 0; k < 3; k++) {
+    const bx = mod(W * (0.2 + k * 0.33) - camX * s * 0.08, W * 1.4) - W * 0.2, sw = Math.sin(time * 0.5 + k * 1.7) * W * 0.25;
+    const g = cx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, na(0.12 + pl * 0.06)); g.addColorStop(1, na(0));
+    cx.fillStyle = g; cx.beginPath(); cx.moveTo(bx - 12, 0); cx.lineTo(bx + 34, 0); cx.lineTo(bx + sw + W * 0.13, H); cx.lineTo(bx + sw - W * 0.05, H); cx.closePath(); cx.fill();
+  }
+  cx.restore();
+  // lysende figurer: fjernt lag og nært lag
+  neonLayer(0.06, 260 * Math.max(0.7, s), 0.16, pl);
+  neonLayer(0.16, 360 * Math.max(0.7, s), 0.3, pl);
+  // svævende lyspixels
+  for (let i = 0; i < 46; i++) {
+    const h1 = (i * 9301 + 49297) % 233280 / 233280, h2 = (i * 7919 + 1237) % 1000 / 1000;
+    const px = mod(h1 * W * 1.6 - camX * s * (0.15 + h2 * 0.35), W * 1.6) - W * 0.3;
+    const py = mod(h2 * H * 1.3 - time * (8 + h1 * 26), H);
+    const sz = (2 + h1 * 5) * Math.max(0.6, s);
+    cx.fillStyle = na(0.25 + 0.45 * (0.5 + 0.5 * Math.sin(time * 3 + i)));
+    cx.fillRect(px, py, sz, sz);
+  }
+  // mørke hjørner
+  const vg = cx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, big * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.6)');
+  cx.fillStyle = vg; cx.fillRect(0, 0, W, H);
+  cx.strokeStyle = '#ffffff'; cx.lineWidth = 2;
+  for (const l of lines) { cx.globalAlpha = l.a; cx.beginPath(); cx.moveTo(l.x, l.y); cx.lineTo(l.x + l.len, l.y); cx.stroke(); }
+  cx.globalAlpha = 1;
+}
+// Klods på neon-banen: sort med lys indefra fra overkanten, mønster i hver flise og lysende kant
+function drawNeonBlock(o, x, y, w, h, z) {
+  cx.fillStyle = '#020208'; cx.fillRect(x, y, w, h);
+  const gh = Math.min(h, z * 2.2), g = cx.createLinearGradient(0, y, 0, y + gh);
+  g.addColorStop(0, na(0.45)); g.addColorStop(1, na(0));
+  cx.fillStyle = g; cx.fillRect(x, y, w, gh);
+  const g2 = cx.createLinearGradient(0, y + h, 0, y + h - Math.min(h, z)); g2.addColorStop(0, na(0.2)); g2.addColorStop(1, na(0));
+  cx.fillStyle = g2; cx.fillRect(x, y + h - Math.min(h, z), w, Math.min(h, z));
+  const nx = Math.round(o.w / T), ny = Math.round(o.h / T);
+  cx.lineWidth = Math.max(1, 1.5 * s); cx.lineJoin = 'round';
+  for (let i = 0; i < nx; i++) {
+    const ix = x + i * z;
+    if (ix > W || ix + z < 0) continue;
+    for (let j = 0; j < ny; j++) {
+      const jy = y + j * z, m = (i * 3 + j * 5 + o.id) % 4, c0 = ix + z / 2, c1 = jy + z / 2;
+      cx.strokeStyle = na(0.22); cx.strokeRect(ix + z * 0.12, jy + z * 0.12, z * 0.76, z * 0.76);
+      cx.strokeStyle = na(0.5); cx.beginPath();
+      if (m === 0) { cx.moveTo(c0, jy + z * 0.25); cx.lineTo(ix + z * 0.75, c1); cx.lineTo(c0, jy + z * 0.75); cx.lineTo(ix + z * 0.25, c1); cx.closePath(); }
+      else if (m === 1) { cx.moveTo(ix + z * 0.32, jy + z * 0.3); cx.lineTo(ix + z * 0.62, c1); cx.lineTo(ix + z * 0.32, jy + z * 0.7); cx.moveTo(ix + z * 0.5, jy + z * 0.3); cx.lineTo(ix + z * 0.8, c1); cx.lineTo(ix + z * 0.5, jy + z * 0.7); }
+      else if (m === 2) { cx.fillStyle = na(0.3); cx.fillRect(ix + z * 0.36, jy + z * 0.36, z * 0.28, z * 0.28); }
+      cx.stroke();
+    }
+  }
+  cx.beginPath(); cx.rect(x, y, w, h); glowStroke(accent());
+}
 function drawBackground(col) {
   const pl = pulse(), lv = intensity();
   if (isR4() && state !== 'select') { drawRandersBackground(col, pl, lv); return; }
+  if (isNeon()) { drawNeonBackground(col, pl); return; }
   cx.fillStyle = col.bg; cx.fillRect(0, 0, W, H);
   const g = cx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, 'rgba(0,0,0,0.55)'); g.addColorStop(1, 'rgba(0,0,0,0.05)');
@@ -1371,11 +1518,16 @@ function drawRandersDeco(d, pl) {
 }
 // Jorden – og gulv/loft i korridor-tilstandene
 function drawGround(col) {
-  const acc2 = LEVELS[LV].accent;
+  const acc2 = accent();
   const band = (y0, y1, lineY) => {
     if (y1 <= y0) return;
     if (isR4() && state !== 'select') { drawClubBand(y0, y1, lineY, lineY === y0); return; }
     cx.fillStyle = col.gr; cx.fillRect(0, y0, W, y1 - y0);
+    if (isNeon() && state !== 'select') {
+      const d = lineY === y0 ? 1 : -1, g = cx.createLinearGradient(0, lineY, 0, lineY + d * T * s * 1.6);
+      g.addColorStop(0, na(0.4)); g.addColorStop(1, na(0)); cx.fillStyle = g;
+      cx.fillRect(0, d > 0 ? y0 : Math.max(y0, lineY - T * s * 1.6), W, T * s * 1.6);
+    }
     // firkantet mønster i jorden
     const tw = T * s * 2, off = mod(camX * s, tw);
     cx.strokeStyle = 'rgba(255,255,255,0.06)'; cx.lineWidth = 2;
@@ -1395,6 +1547,7 @@ function drawGround(col) {
   }
 }
 function glowStroke(col) {
+  if (isNeon()) { cx.strokeStyle = col; cx.globalAlpha = 0.13; cx.lineWidth = Math.max(8, 16 * s); cx.stroke(); }
   cx.strokeStyle = col; cx.globalAlpha = 0.35; cx.lineWidth = Math.max(3, 7 * s); cx.stroke();
   cx.globalAlpha = 1; cx.strokeStyle = C.white; cx.lineWidth = Math.max(1.5, 2.2 * s); cx.stroke();
 }
@@ -1403,6 +1556,7 @@ function drawBlock(o) {
   if (x > W || x + w < 0 || y > H || y + h < 0) return;
   if (o.look) { drawLandmark(o, x, y, w, h, z); return; }
   if (isR4()) { drawClubBlock(o, x, y, w, h, z); return; }
+  if (isNeon()) { drawNeonBlock(o, x, y, w, h, z); return; }
   cx.fillStyle = 'rgba(0,0,0,0.62)'; cx.fillRect(x, y, w, h);
   cx.strokeStyle = 'rgba(255,255,255,0.08)'; cx.lineWidth = 1;
   const nx = Math.floor(o.w / T), ny = Math.floor(o.h / T);
@@ -1411,7 +1565,7 @@ function drawBlock(o) {
     if (ix > W || ix + z < 0) continue;
     for (let j = 0; j < ny; j++) cx.strokeRect(ix + z * 0.12, y + j * z + z * 0.12, z * 0.76, z * 0.76);
   }
-  cx.beginPath(); cx.rect(x, y, w, h); glowStroke(LEVELS[LV].accent);
+  cx.beginPath(); cx.rect(x, y, w, h); glowStroke(accent());
 }
 // Randers' bygninger (skorsten, kirke, bro) – kan landes på som almindelige blokke
 function drawLandmark(o, x, y, w, h, z) {
@@ -1484,7 +1638,7 @@ function drawWater(o) {
   cx.strokeStyle = 'rgba(255,255,255,0.85)'; cx.lineWidth = 2; cx.stroke();
 }
 function drawSpikes(o, down) {
-  const z = T * s, n = Math.round(o.w / T), acc2 = LEVELS[LV].accent;
+  const z = T * s, n = Math.round(o.w / T), acc2 = accent();
   if (o.look === 'spire') {
     // kirkespir i irret kobber med kors
     const x = X(o.x), yb = Y(o.y);
@@ -1502,6 +1656,10 @@ function drawSpikes(o, down) {
     cx.moveTo(x + z * 0.04, yb); cx.lineTo(x + z / 2, yb + dir * z * 0.92); cx.lineTo(x + z * 0.96, yb); cx.closePath();
   }
   cx.fillStyle = 'rgba(0,0,0,0.75)'; cx.fill();
+  if (isNeon()) {
+    const g = cx.createLinearGradient(0, yb, 0, yb + dir * z * 0.92);
+    g.addColorStop(0, na(0.5)); g.addColorStop(1, na(0.04)); cx.fillStyle = g; cx.fill();
+  }
   cx.lineJoin = 'round'; glowStroke(acc2);
 }
 function drawSaw(o) {
@@ -1511,7 +1669,7 @@ function drawSaw(o) {
   cx.beginPath();
   const n = 12;
   for (let i = 0; i < n * 2; i++) { const a = i * Math.PI / n, rr = i % 2 ? r * 0.78 : r; cx[i ? 'lineTo' : 'moveTo'](Math.cos(a) * rr, Math.sin(a) * rr); }
-  cx.closePath(); cx.fillStyle = 'rgba(0,0,0,0.8)'; cx.fill(); glowStroke(LEVELS[LV].accent);
+  cx.closePath(); cx.fillStyle = 'rgba(0,0,0,0.8)'; cx.fill(); if (isNeon()) { cx.fillStyle = na(0.22); cx.fill(); } glowStroke(accent());
   cx.beginPath(); cx.arc(0, 0, r * 0.3, 0, Math.PI * 2); cx.strokeStyle = C.white; cx.lineWidth = 2; cx.stroke();
   cx.restore();
 }
@@ -2279,6 +2437,7 @@ function drawWin() {
 function render() {
   buttons = [];
   const col = colorsAt(state === 'select' ? 0 : p.x);
+  NEON = col.neon;
   cx.save();
   if (shake > 0) cx.translate((Math.random() - 0.5) * shakeAmp, (Math.random() - 0.5) * shakeAmp);
   if (LEVELS[LV].strobe && state === 'play') {
