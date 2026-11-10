@@ -264,34 +264,42 @@ const LEVELS = [
       { x: 98, y: 11.5, txt: 'WAVE I ISBLÅT' }, { x: 132, y: 9.5, txt: 'PINK KUGLE' },
       { x: 172, y: 11.5, txt: 'GRØN UFO' }, { x: 205, y: 5, txt: 'SIDSTE SPURT!' }],
     build() {
-      // blå: trappe over piggene og en orb
+      // blå: savklinge, trappe over piggene, orb og en lille platform-tur
       Col(0, '#02030c', '#040a1f', '#3f7bff');
-      S(12); S(18, 0, 2);
+      Dec(6, 6, 2.2, 'nstar'); Dec(9, 0, 1.2, 'npillar'); Dec(19, 7, 1.6, 'ngear'); Dec(31, 0, 1.2, 'npillar'); Dec(42, 7.5, 2, 'nring');
+      S(12); Saw(17, 0, 0.9); S(20, 0, 1);
       B(24, 0, 3, 1); S(27, 0, 2); B(29, 0, 3, 2); S(32, 0, 2); B(34, 0, 3, 3); K(38, 4.4); S(37, 0, 4);
-      S(44, 0, 6); O(46, 1.6);
-      // lilla: flyvehest
+      S(44, 0, 6); O(46, 1.6); Dec(47.5, 4, 1, 'narrow');
+      // lilla: flyvehest mellem klodser, savklinger og pigge i gulv og loft
       Col(50, '#06020f', '#10051f', '#b84dff');
-      M(52, 'ship', 0, 10);
-      B(58, 0, 2, 4); B(64, 6, 2, 4); Saw(70, 5, 1.2); B(76, 0, 2, 3); B(76, 7, 2, 3);
-      B(82, 0, 2, 5); K(85.5, 6.4); B(88, 5, 2, 5);
-      // isblå: wave
+      M(52, 'ship', 0, 10); Dec(55, 5, 1, 'narrow');
+      B(58, 0, 2, 4); S(60, 0, 4); B(64, 6, 2, 4); D(66, 9, 4); Saw(70, 5, 1.2); B(76, 0, 2, 3); B(76, 7, 2, 3);
+      S(78, 0, 4); B(82, 0, 2, 5); K(85.5, 6.4); B(88, 5, 2, 5); Saw(92.5, 1.2, 0.9);
+      Dec(61, 7.5, 1.4, 'ndia'); Dec(73, 8.5, 1.2, 'nstar'); Dec(80, 6, 1.1, 'ngear');
+      // isblå: wave med pigge og en savklinge midt i
       Col(94, '#01060f', '#031424', '#3fd0ff');
-      M(96, 'wave', 0, 10);
-      B(102, 0, 2, 5); B(109, 5, 2, 5); B(116, 0, 2, 4); B(116, 8, 2, 2); B(123, 6, 2, 4);
-      // pink: kugle
+      M(96, 'wave', 0, 10); Dec(99, 5, 1, 'narrow');
+      B(102, 0, 2, 5); S(104, 0, 4); B(109, 5, 2, 5); D(111, 9, 4); Saw(112.5, 1.6, 0.9); B(116, 0, 2, 4); B(116, 8, 2, 2);
+      S(118, 0, 4); B(123, 6, 2, 4);
+      Dec(106, 8, 1.3, 'nring'); Dec(120, 6.5, 1.2, 'ndia');
+      // pink: kugle mellem pigge og en savklinge
       Col(128, '#0c020a', '#1f0518', '#ff3dc8');
-      M(130, 'ball', 0, 8);
-      S(136, 0, 3); D(143, 7, 3); S(149, 0, 3); D(155, 7, 3); B(160, 0, 3, 3); D(165, 7, 2);
-      // grøn: UFO over pigge
+      M(130, 'ball', 0, 8); Dec(132, 4, 1, 'narrow');
+      S(136, 0, 3); D(143, 7, 3); Saw(146.5, 4, 0.7); S(149, 0, 3); D(155, 7, 3); B(160, 0, 3, 3); D(165, 7, 2);
+      Dec(140, 3.5, 1.2, 'ngear'); Dec(152.5, 4, 1.3, 'nstar');
+      // grøn: UFO over pigge og under hængende pigge
       Col(168, '#010a03', '#03180a', '#3fff6e');
       Gv(168.5, 1, 0, 8);   // altid med benene nedad ind i UFO'en – dækker hele kugle-korridoren
-      M(170, 'ufo', 0, 10); S(171, 0, 25);
-      B(176, 0, 2, 4); B(182, 6, 2, 4); K(184.5, 3); B(188, 0, 2, 5); B(193, 7, 2, 3);
-      // guld: galop til mål
+      M(170, 'ufo', 0, 10); S(171, 0, 25); Dec(172, 6, 1, 'narrow');
+      B(176, 0, 2, 4); D(178, 9, 3); B(182, 6, 2, 4); K(184.5, 3); B(188, 0, 2, 5); D(190, 9, 3); B(193, 7, 2, 3);
+      Dec(179.5, 6, 1.1, 'ndia'); Dec(186, 8, 1.2, 'nring');
+      // guld: galop til mål med savklinger over trappen og en orb til sidst
       Col(196, '#0d0702', '#1f1205', '#ffb02e');
-      M(198, 'cube', 0); Gv(198, 1); V(199, 2);
+      M(198, 'cube', 0); Gv(198, 1); V(199, 2); Dec(202, 4, 1, 'narrow');
       S(207, 0, 3); B(212, 0, 4, 1); B(218, 1, 4, 1); B(224, 2, 4, 1); S(216, 0, 16);
-      S(236, 0, 3);
+      Saw(221.5, 6.4, 0.6); Saw(227.5, 7.4, 0.6);
+      S(236, 0, 3); S(241, 0, 2); O(241.5, 1.8, 'y');
+      Dec(210, 6, 1.6, 'nstar'); Dec(214, 0, 1.2, 'npillar'); Dec(230, 0, 1.2, 'npillar'); Dec(238, 6, 2, 'ngear'); Dec(245, 0, 1.4, 'npillar');
     }
   }
 ];
@@ -490,7 +498,7 @@ try {
   const d = JSON.parse(localStorage.getItem(SAVE_KEY));
   if (d && Array.isArray(d.lv)) {
     d.lv.forEach((l, i) => { if (save.lv[i]) Object.assign(save.lv[i], l); });
-    save.skin = d.skin || 0; save.ship = d.ship || 0; save.wave = d.wave || 0; save.jumps = d.jumps || 0; save.att = d.att || 0;
+    save.muted = !!d.muted; save.skin = d.skin || 0; save.ship = d.ship || 0; save.wave = d.wave || 0; save.jumps = d.jumps || 0; save.att = d.att || 0;
   }
 } catch (e) {}
 function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
@@ -562,7 +570,7 @@ if (!WAVES[save.wave] || !unlocked(WAVES[save.wave])) save.wave = 0;
 // ---------- Lyd (egen elektronisk musik, syntetiseret med WebAudio) ----------
 // Lydvejen: trommer → master; synths → mbus, som "pumper" ned ved hvert kick (sidechain) → master.
 // Rumklang og ekko er send-effekter. master → kompressor → højttaler.
-let AC = null, master = null, mbus = null, revIn = null, dlyIn = null, dlyNode = null, muted = false, musicOn = false, nextT = 0, stepI = 0;
+let AC = null, master = null, mbus = null, revIn = null, dlyIn = null, dlyNode = null, muted = !!save.muted, musicOn = false, nextT = 0, stepI = 0;
 const kicks = [];
 let noiseBuf = null, distCurve = null;
 function setupAudio(ctx) {
@@ -803,7 +811,11 @@ function sfxWin() {
   noise(t, 2.5, 1200, 'bandpass', 0.5); noise(t + 0.3, 2.2, 600, 'bandpass', 0.4);
   [69, 73, 76, 81].forEach((m, i) => tone(t + i * 0.12, m, 0.6, 'square', 0.08));
 }
-function toggleMute() { muted = !muted; if (master) master.gain.value = muted ? 0 : 0.3; }
+function toggleMute() {
+  muted = !muted; save.muted = muted; persist();
+  if (master) { master.gain.cancelScheduledValues(AC.currentTime); master.gain.setTargetAtTime(muted ? 0 : 0.3, AC.currentTime, 0.02); }
+}
+const muteLabel = () => muted ? '🔇' : '🔊';
 
 // ---------- Skærm ----------
 // Spillet fylder det område, man faktisk kan se. På iPhone er CSS'ens 100% / 100vh højere end skærmen,
@@ -1153,7 +1165,7 @@ const Y = y => H - (y - camY) * s;
 const mod = (a, m) => ((a % m) + m) % m;
 const fmt = n => Math.round(n).toLocaleString('da-DK');
 // Neon-banen: NEON er afsnittets lysfarve [r,g,b] (skifter blødt), accent() er kantfarven på alle baner
-let NEON = null;
+let NEON = null, neonSec = -1;
 const isNeon = () => !!LEVELS[LV].neon;
 const na = a => NEON ? `rgba(${NEON[0]},${NEON[1]},${NEON[2]},${a})` : `rgba(63,123,255,${a})`;
 const accent = () => isNeon() && NEON ? na(1) : LEVELS[LV].accent;
@@ -1566,6 +1578,34 @@ function drawNeonBackground(col, pl) {
   for (const l of lines) { cx.globalAlpha = l.a; cx.beginPath(); cx.moveTo(l.x, l.y); cx.lineTo(l.x + l.len, l.y); cx.stroke(); }
   cx.globalAlpha = 1;
 }
+// Pynt på neon-banen (ingen af delene er farlige): lyssøjler, blinkende chevron-pile og lysende figurer,
+// der pulserer med musikken. Figurerne er svage og uden hvid kerne, så de ikke ligner savklinger.
+function drawNeonDeco(d, pl) {
+  const x = X(d.x), y = Y(d.y), z = T * s, r = d.r * s;   // d.r er allerede i verdens-pixels
+  if (x < -6 * z || x > W + 6 * z) return;
+  if (d.k === 'npillar') {
+    const h = 9 * z, w = r * (0.8 + pl * 0.4);
+    const g = cx.createLinearGradient(0, y, 0, y - h); g.addColorStop(0, na(0.36 + pl * 0.25)); g.addColorStop(1, na(0));
+    cx.fillStyle = g; cx.fillRect(x - w / 2, y - h, w, h);
+    const g2 = cx.createLinearGradient(0, y, 0, y - h * 0.9); g2.addColorStop(0, 'rgba(255,255,255,0.55)'); g2.addColorStop(1, 'rgba(255,255,255,0)');
+    cx.fillStyle = g2; cx.fillRect(x - w * 0.06, y - h * 0.9, w * 0.12, h * 0.9);
+    return;
+  }
+  if (d.k === 'narrow') {
+    cx.save(); cx.lineJoin = 'round'; cx.lineCap = 'round';
+    for (let i = 0; i < 3; i++) {
+      const a = 0.2 + 0.7 * Math.max(0, Math.sin(time * 6 - i * 0.9)), ox = x + (i - 1) * r * 0.7;
+      cx.beginPath(); cx.moveTo(ox - r * 0.25, y - r * 0.45); cx.lineTo(ox + r * 0.25, y); cx.lineTo(ox - r * 0.25, y + r * 0.45);
+      cx.strokeStyle = na(a * 0.35); cx.lineWidth = Math.max(5, r * 0.3); cx.stroke();
+      cx.strokeStyle = na(a); cx.lineWidth = Math.max(2, r * 0.1); cx.stroke();
+    }
+    cx.restore(); return;
+  }
+  const k = { ngear: 0, nstar: 1, ndia: 3, nring: 4 }[d.k] ?? 1, rr = r * (1 + pl * 0.12);
+  const g = cx.createRadialGradient(x, y, 0, x, y, rr * 1.3); g.addColorStop(0, na(0.2 + pl * 0.18)); g.addColorStop(1, na(0));
+  cx.fillStyle = g; cx.fillRect(x - rr * 1.3, y - rr * 1.3, rr * 2.6, rr * 2.6);
+  neonGlyph(k, x, y, rr, time * ((d.x | 0) % 2 ? 0.7 : -0.7), 0.32 + pl * 0.2);
+}
 // Klods på neon-banen: sort med lys indefra fra overkanten, mønster i hver flise og lysende kant
 function drawNeonBlock(o, x, y, w, h, z) {
   cx.fillStyle = '#020208'; cx.fillRect(x, y, w, h);
@@ -1648,6 +1688,7 @@ function drawDeco() {
   const pl = pulse();
   for (const d of DECO) {
     if (d.k === 'bridge' || d.k === 'smoke' || d.k === 'stadium') { drawRandersDeco(d, pl); continue; }
+    if (d.k[0] === 'n') { drawNeonDeco(d, pl); continue; }
     const x = X(d.x), y = Y(d.y), r = d.r * s * (1 + pl * 0.25);
     if (x < -r * 2 || x > W + r * 2) continue;
     cx.strokeStyle = `rgba(255,255,255,${0.18 + pl * 0.3})`; cx.lineWidth = 3;
@@ -1695,6 +1736,13 @@ function drawGround(col) {
       const d = lineY === y0 ? 1 : -1, g = cx.createLinearGradient(0, lineY, 0, lineY + d * T * s * 1.6);
       g.addColorStop(0, na(0.4)); g.addColorStop(1, na(0)); cx.fillStyle = g;
       cx.fillRect(0, d > 0 ? y0 : Math.max(y0, lineY - T * s * 1.6), W, T * s * 1.6);
+      // lysende gitter, der ruller med farten
+      const tw2 = T * s, off2 = mod(camX * s, tw2), deep = Math.min(y1 - y0, T * s * 3);
+      cx.strokeStyle = na(0.16 + pulse() * 0.12); cx.lineWidth = 1;
+      cx.beginPath();
+      for (let x = -off2; x < W; x += tw2) { cx.moveTo(x, lineY); cx.lineTo(x, lineY + d * deep); }
+      for (let k = 1; k <= 3; k++) { const yy = lineY + d * deep * (k * k) / 9; cx.moveTo(0, yy); cx.lineTo(W, yy); }
+      cx.stroke();
     }
     // firkantet mønster i jorden
     const tw = T * s * 2, off = mod(camX * s, tw);
@@ -1715,7 +1763,7 @@ function drawGround(col) {
   }
 }
 function glowStroke(col) {
-  if (isNeon()) { cx.strokeStyle = col; cx.globalAlpha = 0.13; cx.lineWidth = Math.max(8, 16 * s); cx.stroke(); }
+  if (isNeon()) { cx.strokeStyle = col; cx.globalAlpha = 0.12 + pulse() * 0.14; cx.lineWidth = Math.max(8, 16 * s); cx.stroke(); }
   cx.strokeStyle = col; cx.globalAlpha = 0.35; cx.lineWidth = Math.max(3, 7 * s); cx.stroke();
   cx.globalAlpha = 1; cx.strokeStyle = C.white; cx.lineWidth = Math.max(1.5, 2.2 * s); cx.stroke();
 }
@@ -2298,8 +2346,8 @@ function drawPlayer() {
   if (trail.length > 1) {
     cx.save(); cx.lineJoin = 'round'; cx.lineCap = 'round';
     cx.beginPath(); trail.forEach((t, i) => cx[i ? 'lineTo' : 'moveTo'](X(t.x), Y(t.y))); cx.lineTo(X(p.x + sz / 2), Y(p.y + sz / 2));
-    cx.strokeStyle = MODE_COL.wave; cx.globalAlpha = 0.35; cx.lineWidth = sz * s * 0.55; cx.stroke();
-    cx.globalAlpha = 1; cx.strokeStyle = C.white; cx.lineWidth = Math.max(2, sz * s * 0.16); cx.stroke();
+    cx.strokeStyle = MODE_COL.wave; cx.globalAlpha = 0.16; cx.lineWidth = sz * s * 0.45; cx.stroke();
+    cx.globalAlpha = 0.75; cx.strokeStyle = '#d8fbff'; cx.lineWidth = Math.max(1.5, sz * s * 0.12); cx.stroke();
     cx.restore();
   }
   if (p.mul >= 1.25 && state === 'play' && p.mode !== 'wave') {
@@ -2308,7 +2356,8 @@ function drawPlayer() {
       drawIconAt(p.mode, gh.x, gh.y, sz, gh.rot, gh.ph, air, 0.07 + i * 0.012, gh.flip);
     }
   }
-  cx.save(); cx.shadowColor = curSkin().full ? '#ffffff' : MODE_COL[p.mode]; cx.shadowBlur = 8 * s;
+  // kun en svag glød, så karakteren ikke "lyser" (mørk kontur-skygge giver dybde)
+  cx.save(); cx.shadowColor = 'rgba(0,0,0,0.55)'; cx.shadowBlur = 4 * s;
   drawIconAt(p.mode, p.x, p.y, sz, p.rot, p.ph, air, 1, p.mode === 'ball' ? 1 : p.flip);
   cx.restore();
 }
@@ -2420,8 +2469,8 @@ function drawHUD() {
   const pct = state === 'win' ? 100 : progress();
   bar(bx, by, bw, bh, pct, practice ? '#3fff78' : C.sky);
   text(pct + '%', bx + bw + 10, by + 11, 14);
-  if (state === 'play') button(10, 8, 40, 32, 'II', pause, C.sky, false, 15);
-  text(`${String(p.mul).replace('.', ',')}×  ${MODE_NAME[p.mode]}${p.mini ? ' MINI' : ''}`, 58, by + 11, 13, 900, SPEED_COL[SPEEDS.indexOf(p.mul)]);
+  if (state === 'play') { button(10, 8, 40, 32, 'II', pause, C.sky, false, 15); button(56, 8, 40, 32, muteLabel(), toggleMute, muted ? '#ff4d6a' : C.sky, false, 15); }
+  text(`${String(p.mul).replace('.', ',')}×  ${MODE_NAME[p.mode]}${p.mini ? ' MINI' : ''}`, 104, by + 11, 13, 900, SPEED_COL[SPEEDS.indexOf(p.mul)]);
   if (practice) text('ØVELSE', W - 14, by + 11, 14, 900, '#3fff78', 'right');
   else text(`Point ${fmt(runScore(state === 'win'))}`, W - 14, by + 11, 14, 900, C.white, 'right');
   if (noclip || p.ncUsed) {
@@ -2448,7 +2497,7 @@ function drawBanner() {
 // hesten (i den valgte stald-farve) galopperer på græsset bag menuen – tegnes i skærmens egen størrelse
 function drawSelectBack() {
   overlay(0.45);
-  cx.save(); cx.shadowColor = C.sky; cx.shadowBlur = 6;
+  cx.save(); cx.shadowColor = 'rgba(0,0,0,0.5)'; cx.shadowBlur = 4;
   const z = T * s; cx.translate(Math.max(60, (W - Math.min(W - 110, 520)) / 2 - 70), Y(0) - z * 0.5); cx.scale(z / 40 * 1.05, z / 40 * 1.05);
   drawHorse(menuX * 0.05, false, false, 0, curSkin(), false);
   cx.restore();
@@ -2501,6 +2550,7 @@ function drawSelect() {
   const hh = (gw - 12) / 2;
   button(gx, by + 130, hh, 34, noclip ? 'Noclip: TIL (N)' : 'Noclip: FRA (N)', toggleNoclip, '#ff4d6a', noclip, 14);
   button(gx + hh + 12, by + 130, hh, 34, showHit ? 'Hitbokse: TIL (H)' : 'Hitbokse: FRA (H)', toggleHitboxes, '#3fa9ff', showHit, 14);
+  button(W - 58, 12, 46, 40, muteLabel(), toggleMute, muted ? '#ff4d6a' : C.sky, false, 18);   // lyd til/fra
   if (IOS && !STANDALONE) {
     roundRect(W / 2 - 250, H - 40, 500, 30, 15); cx.fillStyle = 'rgba(255,210,63,0.95)'; cx.fill();
     centerText('Fuld skærm: tryk Del ⬆︎ i Safari → Føj til hjemmeskærm', H - 20, 14, 900, C.navy);
@@ -2569,7 +2619,8 @@ function drawPause() {
   const hw = (bw - 10) / 2;
   button(x0, y, hw, 42, noclip ? 'Noclip: TIL (N)' : 'Noclip: FRA (N)', toggleNoclip, '#ff4d6a', noclip, 15);
   button(x0 + hw + 10, y, hw, 42, showHit ? 'Hitbokse: TIL (H)' : 'Hitbokse: FRA (H)', toggleHitboxes, '#3fa9ff', showHit, 15); y += 52;
-  button(x0, y, bw, 42, '☰ Til banevalg (B)', toSelect, C.gold);
+  button(x0, y, hw, 42, '☰ Banevalg (B)', toSelect, C.gold, false, 15);
+  button(x0 + hw + 10, y, hw, 42, `${muteLabel()} Lyd: ${muted ? 'FRA' : 'TIL'} (M)`, toggleMute, muted ? '#ff4d6a' : C.sky, muted, 15);
 }
 function drawWin() {
   overlay(Math.min(0.55, winT * 0.5));
@@ -2606,6 +2657,14 @@ function render() {
   buttons = [];
   const col = colorsAt(state === 'select' ? 0 : p.x);
   NEON = col.neon;
+  if (isNeon() && state === 'play') {
+    let si = 0; while (si + 1 < COLS.length && COLS[si + 1].x <= p.x) si++;
+    if (si > neonSec && neonSec >= 0) {
+      const c = hexRgb(COLS[si].neon); flash = Math.max(flash, 0.22); flashCol = c.join(',');
+      ring(p.x + T / 2, p.y + T / 2, COLS[si].neon, 1, 5); shake = Math.max(shake, 0.1); shakeAmp = 6;
+    }
+    neonSec = si;
+  } else if (state !== 'pause') neonSec = -1;
   cx.save();
   if (shake > 0) cx.translate((Math.random() - 0.5) * shakeAmp, (Math.random() - 0.5) * shakeAmp);
   if (LEVELS[LV].strobe && state === 'play') {
